@@ -15,76 +15,132 @@ const lightModeStyles = {
   color: 'rgb(51, 187, 199)',
 };
 
-const getPrintOutput = (input) => {
-  let print = '';
-  let clickable = false;
-  switch (print) {
-    default:
-      print = `zsh: command not found: ${input}`;
-  }
-  return { print, clickable };
-};
-
 const getCurrentTime = () => {
   const now = Date.now();
   const hours = new Date(now).getHours();
   const minutes = new Date(now).getMinutes();
   const seconds = new Date(now).getSeconds();
 
-  return `${hours}:${minutes}:${seconds}`
+  return `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`
 };
+
+function Row({ children }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'row' }}>
+      {children}
+    </div>
+  );
+}
 
 function App() {
   const [isDarkMode, setIsDarkMode] = React.useState(true);
-  // { cmd: str, time: str, print: str, clickable: bool, path: str }
+  // { cmd: str, time: str, print: str, clickable: bool, path: str, isVisible: bool }
   const [history, setHistory] = React.useState([]);
   const [currPath, setCurrPath] = React.useState('~');
   const [inputVal, setInputVal] = React.useState('');
   // x commands back
   const [arrowPointer, setArrowPointer] = React.useState(0);
 
-  const onClear = () => {
-    setHistory([introPrint])
-  };
+  const inputRef = React.useRef(null);
 
   const handleInputChange = (e) => {
     setInputVal(e.currentTarget.value);
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'up') {
-      const newArrowPointer = arrowPointer + 1 >= history.length - 1 ? history.length - 1 : arrowPointer + 1;
+    console.log('arrowPointer', arrowPointer)
+    if (e.key === 'ArrowUp') {
+      const newArrowPointer = arrowPointer + 1 >= history.length ? history.length : arrowPointer + 1;
+      console.log('newArrowPointer', newArrowPointer)
       setArrowPointer(newArrowPointer);
-      setInputVal(history[history.length - 1 - arrowPointer]);
-    } else if (e.key === 'down') {
+      const newCmd = history[history.length - 1 - newArrowPointer].cmd;
+      setInputVal(newCmd);
+      inputRef.current.selectionEnd = newCmd.length;
+      inputRef.current.selectionStart = newCmd.length;
+    } else if (e.key === 'ArrowDown') {
       const newArrowPointer = arrowPointer - 1 <= 0 ? 0 : arrowPointer - 1;
+      console.log('newArrowPointer', newArrowPointer)
       setArrowPointer(newArrowPointer);
-      setInputVal(history[history.length - 1 - arrowPointer]);
-    } else if (e.key === 'enter') {
-      const { print, clickable } = getPrintOutput(inputVal);
+      if (newArrowPointer > 0) {
+        const newCmd = history[history.length - 1 - newArrowPointer].cmd;
+        setInputVal(newCmd);
+        inputRef.current.selectionEnd = newCmd.length;
+        inputRef.current.selectionStart = newCmd.length;
+      } else {
+        setInputVal('');
+      }
+    } else if (e.key === 'Enter') {
+      let print = '';
+      let clickable = false;
+      let newHistory = [...history];
+      let isVisible = true;
+
+      switch (inputVal) {
+        case 'clear':
+          newHistory = newHistory.map(h => ({ ...h, isVisible: false }));
+          isVisible = false
+          break;
+        case 'dark':
+          setIsDarkMode(true);
+          break;
+        case 'light':
+          setIsDarkMode(false);
+          break;
+        default:
+          print = `zsh: command not found: ${inputVal}`;
+          break;
+      }
+
       setHistory([
-        ...history,
-        { cmd: inputVal, time: getCurrentTime(), print, clickable, path: currPath }
+        ...newHistory,
+        { cmd: inputVal, time: getCurrentTime(), print, clickable, path: currPath, isVisible }
       ]);
       setArrowPointer(0);
       setInputVal('');
     }
   };
 
+  const visibleHistory = history.filter(h => h.isVisible);
+
   return (
     <div className="App" style={isDarkMode ? darkModeStyles : lightModeStyles}>
-      {history.map(h => clickable ? (
-        <>
-          <Prefix path={h.path} time={h.time} />
-          <a href={'#'}>{h.print}</a>
-        </>
+      <Row>
+        <p>{introPrint}</p>
+      </Row>
+      {visibleHistory.map(h => h.clickable ? (
+        <React.Fragment key={h.time}>
+          <Row>
+            <Prefix path={h.path} time={h.time} cmd={h.cmd} />
+          </Row>
+          <Row>
+            <a href={'#'}>{h.print}</a>
+          </Row>
+        </React.Fragment>
       ) : (
-        <>
-          <Prefix path={h.path} time={h.time} />
-          <p>{h.print}</p>
-        </>
+        <React.Fragment key={h.time}>
+          <Row>
+            <Prefix path={h.path} time={h.time} cmd={h.cmd} />
+          </Row>
+          {h.print ? (
+            <Row>
+              <p>{h.print}</p>
+            </Row>
+          ) : null}
+        </React.Fragment>
       ))}
-      <input value={inputVal} onChange={handleInputChange} onKeyDown={handleKeyDown} />
+      <Row>
+        <Prefix path={currPath} />
+        <input
+          value={inputVal}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          style={{
+            ...(isDarkMode ? darkModeStyles : lightModeStyles),
+            border: 'none',
+          }}
+          ref={inputRef}
+        />
+      </Row>
     </div>
   );
 }
