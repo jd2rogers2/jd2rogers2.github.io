@@ -24,13 +24,27 @@ const getCurrentTime = () => {
   return `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`
 };
 
-function Row({ children }) {
+function Row({ children, styles }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'row' }}>
+    <div style={{ display: 'flex', flexDirection: 'row', ...styles }}>
       {children}
     </div>
   );
 }
+
+// function Cursor() {
+//   const [isBlinked, setIsBlinked] = React.useState(true);
+
+//   React.useEffect(() => {
+//     setTimeout(() => {
+//       setIsBlinked(!isBlinked);
+//     }, 500);
+//   }, [isBlinked]);
+
+//   return (
+//     <div style={{ height: '20px', width: '12px', backgroundColor: isBlinked ? 'white' : 'black' }} />
+//   );
+// }
 
 function App() {
   const [isDarkMode, setIsDarkMode] = React.useState(true);
@@ -38,36 +52,47 @@ function App() {
   const [history, setHistory] = React.useState([]);
   const [currPath, setCurrPath] = React.useState('~');
   const [inputVal, setInputVal] = React.useState('');
+  const [currIntroPrint, setCurrIntroPrint] = React.useState('');
   // x commands back
   const [arrowPointer, setArrowPointer] = React.useState(0);
 
   const inputRef = React.useRef(null);
 
+  React.useEffect(() => {
+    function writeOutIntro() {
+      return;
+      // setTimeout(() => {
+      //   setCurrIntroPrint(introPrint.slice(0, currIntroPrint.length + 1));
+      // }, 20);
+    }
+    writeOutIntro();
+  }, [currIntroPrint]);
+
   const handleInputChange = (e) => {
     setInputVal(e.currentTarget.value);
   };
 
+  const arrowHistory = history.filter(h => h.cmd.length);
+
   const handleKeyDown = (e) => {
     console.log('arrowPointer', arrowPointer)
     if (e.key === 'ArrowUp') {
-      const newArrowPointer = arrowPointer + 1 >= history.length ? history.length : arrowPointer + 1;
-      console.log('newArrowPointer', newArrowPointer)
-      setArrowPointer(newArrowPointer);
-      const newCmd = history[history.length - 1 - newArrowPointer].cmd;
-      setInputVal(newCmd);
-      inputRef.current.selectionEnd = newCmd.length;
-      inputRef.current.selectionStart = newCmd.length;
-    } else if (e.key === 'ArrowDown') {
-      const newArrowPointer = arrowPointer - 1 <= 0 ? 0 : arrowPointer - 1;
-      console.log('newArrowPointer', newArrowPointer)
-      setArrowPointer(newArrowPointer);
-      if (newArrowPointer > 0) {
-        const newCmd = history[history.length - 1 - newArrowPointer].cmd;
-        setInputVal(newCmd);
-        inputRef.current.selectionEnd = newCmd.length;
-        inputRef.current.selectionStart = newCmd.length;
+      e.preventDefault();
+      const newPointer = arrowPointer - 1;
+      if (newPointer < 0) {
+        setArrowPointer(0);
       } else {
+        setArrowPointer(newPointer);
+      }
+      setInputVal(arrowHistory[newPointer].cmd);
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const newPointer = arrowPointer + 1;
+      if (newPointer > arrowHistory.length - 1) {
         setInputVal('');
+      } else {
+        setArrowPointer(newPointer);
+        setInputVal(arrowHistory[newPointer].cmd);
       }
     } else if (e.key === 'Enter') {
       let print = '';
@@ -83,6 +108,9 @@ function App() {
         case 'dark':
           setIsDarkMode(true);
           break;
+        case '':
+          isVisible = true;
+          break;
         case 'light':
           setIsDarkMode(false);
           break;
@@ -95,17 +123,24 @@ function App() {
         ...newHistory,
         { cmd: inputVal, time: getCurrentTime(), print, clickable, path: currPath, isVisible }
       ]);
-      setArrowPointer(0);
+      console.log('arrowHistory', arrowHistory);
+      setArrowPointer((arrowHistory.length || 1) - 1);
       setInputVal('');
     }
   };
 
+  console.log('arrowPointer', arrowPointer);
+
+  const handleClickAnywhere = () => {
+    inputRef.current.focus();
+  }
+
   const visibleHistory = history.filter(h => h.isVisible);
 
   return (
-    <div className="App" style={isDarkMode ? darkModeStyles : lightModeStyles}>
-      <Row>
-        <p>{introPrint}</p>
+    <div className="App" style={isDarkMode ? darkModeStyles : lightModeStyles} onClick={handleClickAnywhere}>
+      <Row styles={{ whiteSpace: 'pre-line' }}>
+        {currIntroPrint}
       </Row>
       {visibleHistory.map(h => h.clickable ? (
         <React.Fragment key={h.time}>
@@ -139,6 +174,8 @@ function App() {
             border: 'none',
           }}
           ref={inputRef}
+          size={inputVal.length || 1}
+          autoFocus
         />
       </Row>
     </div>
