@@ -57,6 +57,12 @@ const getCurrPathInfo = (currPath) => {
   return [tempLoc, dirs];
 }
 
+const getNextPathOrFail = (currPath, nextPath) => {
+  const [tempLoc] = getCurrPathInfo(currPath);
+
+}
+
+
 function App() {
   const [isDarkMode, setIsDarkMode] = React.useState(true);
   // { cmd: str, time: str, print: str, clickable: bool, path: str, isVisible: bool }
@@ -67,6 +73,7 @@ function App() {
   // x commands back
   const [arrowPointer, setArrowPointer] = React.useState(0);
   const [displayTime, setDisplayTime] = React.useState(getCurrentTime());
+  const [matches, setMatches] = React.useState([]);
 
   const inputRef = React.useRef(null);
 
@@ -108,6 +115,17 @@ function App() {
       } else {
         setArrowPointer(newPointer);
         setInputVal(arrowHistory[newPointer]?.cmd ?? '');
+      }
+    } else if (e.key === 'Tab' && inputVal.startsWith('cd ')) {
+      e.preventDefault();
+      const [currLoc] = getCurrPathInfo(currPath);
+      const children = Array.isArray(currLoc) ? currLoc : Object.keys(currLoc);
+      const newMatches = children.filter(c => c.startsWith(inputVal.slice(3)));
+      if (newMatches.length > 1) {
+        setMatches(newMatches);
+      } else if (newMatches.length === 1) {
+        setInputVal(`cd ${newMatches[0]}`);
+        setMatches([]);
       }
     } else if (e.key === 'Enter') {
       let print = '';
@@ -151,7 +169,7 @@ function App() {
             } else if (nextLoc === '..') {
               setCurrPath(currPath.slice(0, currPath.lastIndexOf('/')));
             } else if (nextLoc === '~') {
-              setCurrPath('~');
+              setCurrPath(nextLoc);
             } else {
               print = `cd: no such file or directory: ${nextLoc}`;
             }
@@ -174,6 +192,7 @@ function App() {
       setArrowPointer((newArrowHistory.length || 1));
       setInputVal('');
       setDisplayTime(time);
+      setMatches([]);
     }
   };
 
@@ -215,7 +234,7 @@ function App() {
           {h.print ? (
             <Row styles={h.cmd === 'welcome' ? introPrintStylez : {}}>
               {Array.isArray(h.print) ? h.print.map(p => (
-                <div key={p.title} style={{ paddingRight: '30px' }}>{p}</div>
+                <div key={p.title} style={{ paddingRight: '30px' }}>{p?.title ?? p}</div>
               )) : (
                 <p key={h.print}>{h.print}</p>
               )}
@@ -238,6 +257,13 @@ function App() {
           autoFocus
         />
       </Row>
+      {matches.length ? (
+        <Row>
+          {matches.map(m => (
+            <div key={m} style={{ paddingRight: '30px' }}>{m}</div>
+          ))}
+        </Row>
+      ) : null}
     </div>
   );
 }
