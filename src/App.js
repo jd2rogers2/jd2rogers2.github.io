@@ -7,14 +7,15 @@ import * as blogs from './staticContent/blogStartUpJournalThings';
 import './App.css';
 
 
-const darkModeStyles = {
+const darkModeStylez = {
   backgroundColor: 'rgb(37, 37, 37)',
   color: 'rgb(105, 207, 73)',
 };
-const lightModeStyles = {
+const lightModeStylez = {
   backgroundColor: 'rgb(255, 255, 255)',
   color: 'rgb(51, 187, 199)',
 };
+const introPrintStylez = { whiteSpace: 'pre-line' };
 
 const getCurrentTime = () => {
   const now = Date.now();
@@ -36,11 +37,11 @@ function Row({ children, styles }) {
 const dirStructure = {
   '~': {
     links: [
-      { text: 'linkedin', href: '' },
-      { text: 'gitlab', href: '' },
-      { text: 'github', href: '' },
+      { title: 'linkedin', href: '' },
+      { title: 'gitlab', href: '' },
+      { title: 'github', href: '' },
     ],
-    Downloads: ['resume'],
+    Downloads: [{ title: 'resume', href: '' }],
     Documents: {
       blog_start_up_journal_things: Object.values(blogs),
     },
@@ -68,6 +69,12 @@ function App() {
     }
     writeOutIntro();
   }, [currIntroPrint]);
+
+  React.useEffect(() => {
+    if (inputRef?.current) {
+      inputRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  });
 
   const handleInputChange = (e) => {
     setInputVal(e.currentTarget.value);
@@ -122,12 +129,18 @@ function App() {
           }
           break;
         case 'pwd':
-          print = currPath
+          print = currPath;
+          break;
+        case 'welcome':
+          print = introPrint;
           break;
         case '':
-          isVisible = true;
           break;
         default:
+          if (inputVal.startsWith('cd ')) {
+            console.log('cd');
+            break;
+          }
           print = `zsh: command not found: ${inputVal}`;
           break;
       }
@@ -152,8 +165,8 @@ function App() {
   const visibleHistory = history.filter(h => h.isVisible);
 
   return (
-    <div className="App" style={isDarkMode ? darkModeStyles : lightModeStyles} onClick={handleClickAnywhere}>
-      <Row styles={{ whiteSpace: 'pre-line' }}>
+    <div className="App" style={isDarkMode ? darkModeStylez : lightModeStylez} onClick={handleClickAnywhere}>
+      <Row styles={introPrintStylez}>
         {currIntroPrint}
       </Row>
       {visibleHistory.map(h => h.clickable ? (
@@ -162,7 +175,11 @@ function App() {
             <Prefix path={h.path} time={h.time} cmd={h.cmd} />
           </Row>
           <Row>
-            <a href={'#'}>{h.print}</a>
+            {Array.isArray(h.print) ? h.print.map(p => (
+              <a key={p.title} href={p.href}>{p.title}</a>
+            )) : (
+              <a href={h.href}>{h.print}</a>
+            )}
           </Row>
         </React.Fragment>
       ) : (
@@ -171,11 +188,11 @@ function App() {
             <Prefix path={h.path} time={h.time} cmd={h.cmd} />
           </Row>
           {h.print ? (
-            <Row>
+            <Row styles={h.cmd === 'welcome' ? introPrintStylez : {}}>
               {Array.isArray(h.print) ? h.print.map(p => (
-                <div style={{ paddingRight: '30px' }}>{p}</div>
+                <div key={p.title} style={{ paddingRight: '30px' }}>{p}</div>
               )) : (
-                <p>{h.print}</p>
+                <p key={h.print}>{h.print}</p>
               )}
             </Row>
           ) : null}
@@ -188,7 +205,7 @@ function App() {
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           style={{
-            ...(isDarkMode ? darkModeStyles : lightModeStyles),
+            ...(isDarkMode ? darkModeStylez : lightModeStylez),
             border: 'none',
           }}
           ref={inputRef}
