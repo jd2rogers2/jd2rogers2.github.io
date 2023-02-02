@@ -140,6 +140,9 @@ function App() {
           if (inputVal.startsWith('cd ')) {
             console.log('cd');
             break;
+          } else if (inputVal.startsWith('echo ')) {
+            print = inputVal.slice(5);
+            break;
           }
           print = `zsh: command not found: ${inputVal}`;
           break;
