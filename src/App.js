@@ -37,15 +37,24 @@ function Row({ children, styles }) {
 const dirStructure = {
   '~': {
     links: [
-      { title: 'linkedin', href: '' },
-      { title: 'gitlab', href: '' },
-      { title: 'github', href: '' },
+      { title: 'linkedin', href: 'https://www.linkedin.com/in/jd2rogers2/' },
+      { title: 'gitlab', href: 'https://gitlab.com/jd2rogers2' },
+      { title: 'github', href: 'https://github.com/jd2rogers2' },
     ],
     Downloads: [{ title: 'resume', href: '' }],
     Documents: {
       blog_start_up_journal_things: Object.values(blogs),
     },
   },
+}
+
+const getCurrPathInfo = (currPath) => {
+  let tempLoc = dirStructure;
+  const dirs = currPath.split('/');
+  dirs.forEach(dir => {
+    tempLoc = tempLoc[dir];
+  });
+  return [tempLoc, dirs];
 }
 
 function App() {
@@ -118,12 +127,8 @@ function App() {
           setIsDarkMode(false);
           break;
         case 'ls':
-          let tempLoc = dirStructure;
-          const dirs = currPath.split('/');
-          dirs.forEach(dir => {
-            tempLoc = tempLoc[dir];
-          });
-          print = typeof tempLoc === 'object' ? Object.keys(tempLoc) : tempLoc;
+          const [currLoc, dirs] = getCurrPathInfo(currPath);
+          print = Array.isArray(currLoc) ? currLoc : Object.keys(currLoc);
           if (dirs[dirs.length - 1] === 'links' || dirs[dirs.length - 1] === 'Downloads') {
             clickable = true;
           }
@@ -138,7 +143,18 @@ function App() {
           break;
         default:
           if (inputVal.startsWith('cd ')) {
-            console.log('cd');
+            const [currLoc] = getCurrPathInfo(currPath);
+            const children = Array.isArray(currLoc) ? currLoc : Object.keys(currLoc);
+            const nextLoc = inputVal.slice(3);
+            if (children.includes(nextLoc)) {
+              setCurrPath(`${currPath}/${nextLoc}`);
+            } else if (nextLoc === '..') {
+              setCurrPath(currPath.slice(0, currPath.lastIndexOf('/')));
+            } else if (nextLoc === '~') {
+              setCurrPath('~');
+            } else {
+              print = `cd: no such file or directory: ${nextLoc}`;
+            }
             break;
           } else if (inputVal.startsWith('echo ')) {
             print = inputVal.slice(5);
@@ -179,9 +195,15 @@ function App() {
           </Row>
           <Row>
             {Array.isArray(h.print) ? h.print.map(p => (
-              <a key={p.title} href={p.href}>{p.title}</a>
+              <a
+                key={p.title}
+                href={p.href}
+                target="_blank"
+                rel="noreferrer"
+                style={{ paddingRight: '30px' }}
+              >{p.title}</a>
             )) : (
-              <a href={h.href}>{h.print}</a>
+              <a href={h.href} target="_blank" rel="noreferrer">{h.print}</a>
             )}
           </Row>
         </React.Fragment>
