@@ -35,7 +35,11 @@ function Row({ children, styles }) {
 
 const dirStructure = {
   '~': {
-    links: ['inkedin', 'github', 'gitlab'],
+    links: [
+      { text: 'linkedin', href: '' },
+      { text: 'gitlab', href: '' },
+      { text: 'github', href: '' },
+    ],
     Downloads: ['resume'],
     Documents: {
       blog_start_up_journal_things: Object.values(blogs),
@@ -52,6 +56,7 @@ function App() {
   const [currIntroPrint, setCurrIntroPrint] = React.useState('');
   // x commands back
   const [arrowPointer, setArrowPointer] = React.useState(0);
+  const [displayTime, setDisplayTime] = React.useState(getCurrentTime());
 
   const inputRef = React.useRef(null);
 
@@ -102,13 +107,19 @@ function App() {
         case 'dark':
           setIsDarkMode(true);
           break;
+        case 'light':
+          setIsDarkMode(false);
+          break;
         case 'ls':
           let tempLoc = dirStructure;
           const dirs = currPath.split('/');
           dirs.forEach(dir => {
             tempLoc = tempLoc[dir];
           });
-          print = tempLoc;
+          print = typeof tempLoc === 'object' ? Object.keys(tempLoc) : tempLoc;
+          if (dirs[dirs.length - 1] === 'links' || dirs[dirs.length - 1] === 'Downloads') {
+            clickable = true;
+          }
           break;
         case 'pwd':
           print = currPath
@@ -116,23 +127,21 @@ function App() {
         case '':
           isVisible = true;
           break;
-        case 'light':
-          setIsDarkMode(false);
-          break;
         default:
           print = `zsh: command not found: ${inputVal}`;
           break;
       }
 
+      const time = getCurrentTime();
       newHistory = [
         ...newHistory,
-        { cmd: inputVal, time: getCurrentTime(), print, clickable, path: currPath, isVisible }
+        { cmd: inputVal, time, print, clickable, path: currPath, isVisible }
       ];
       setHistory(newHistory);
       const newArrowHistory = newHistory.filter(h => h.cmd.length);
-      console.log('newArrowHistory', newArrowHistory);
       setArrowPointer((newArrowHistory.length || 1));
       setInputVal('');
+      setDisplayTime(time);
     }
   };
 
@@ -163,13 +172,17 @@ function App() {
           </Row>
           {h.print ? (
             <Row>
-              <p>{h.print}</p>
+              {Array.isArray(h.print) ? h.print.map(p => (
+                <div style={{ paddingRight: '30px' }}>{p}</div>
+              )) : (
+                <p>{h.print}</p>
+              )}
             </Row>
           ) : null}
         </React.Fragment>
       ))}
       <Row>
-        <Prefix path={currPath} />
+        <Prefix path={currPath} time={displayTime} />
         <input
           value={inputVal}
           onChange={handleInputChange}
