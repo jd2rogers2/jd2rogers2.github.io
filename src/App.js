@@ -72,10 +72,8 @@ function App() {
     setInputVal(e.currentTarget.value);
   };
 
-  const arrowHistory = history.filter(h => h.cmd.length);
-
   const handleKeyDown = (e) => {
-    console.log('arrowPointer', arrowPointer)
+    const arrowHistory = history.filter(h => h.cmd.length);
     if (e.key === 'ArrowUp') {
       e.preventDefault();
       const newPointer = arrowPointer - 1;
@@ -83,16 +81,16 @@ function App() {
         setArrowPointer(0);
       } else {
         setArrowPointer(newPointer);
+        setInputVal(arrowHistory[newPointer].cmd);
       }
-      setInputVal(arrowHistory[newPointer].cmd);
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
       const newPointer = arrowPointer + 1;
-      if (newPointer > arrowHistory.length - 1) {
+      if (newPointer > arrowHistory.length) {
         setInputVal('');
       } else {
         setArrowPointer(newPointer);
-        setInputVal(arrowHistory[newPointer].cmd);
+        setInputVal(arrowHistory[newPointer]?.cmd ?? '');
       }
     } else if (e.key === 'Enter') {
       let print = '';
@@ -119,17 +117,17 @@ function App() {
           break;
       }
 
-      setHistory([
+      newHistory = [
         ...newHistory,
         { cmd: inputVal, time: getCurrentTime(), print, clickable, path: currPath, isVisible }
-      ]);
-      console.log('arrowHistory', arrowHistory);
-      setArrowPointer((arrowHistory.length || 1) - 1);
+      ];
+      setHistory(newHistory);
+      const newArrowHistory = newHistory.filter(h => h.cmd.length);
+      console.log('newArrowHistory', newArrowHistory);
+      setArrowPointer((newArrowHistory.length || 1));
       setInputVal('');
     }
   };
-
-  console.log('arrowPointer', arrowPointer);
 
   const handleClickAnywhere = () => {
     inputRef.current.focus();
