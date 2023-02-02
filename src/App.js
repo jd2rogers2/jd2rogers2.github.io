@@ -34,6 +34,7 @@ function Row({ children, styles }) {
   );
 }
 
+const resumeTitle = 'James_Rogers_Resume.pdf';
 const dirStructure = {
   '~': {
     links: [
@@ -41,7 +42,7 @@ const dirStructure = {
       { title: 'gitlab', href: 'https://gitlab.com/jd2rogers2' },
       { title: 'github', href: 'https://github.com/jd2rogers2' },
     ],
-    Downloads: [{ title: 'resume', href: '' }],
+    Downloads: [{ title: resumeTitle }],
     Documents: {
       blog_start_up_journal_things: Object.values(blogs),
     },
@@ -57,11 +58,6 @@ const getCurrPathInfo = (currPath) => {
   return [tempLoc, dirs];
 }
 
-const getNextPathOrFail = (currPath, nextPath) => {
-  const [tempLoc] = getCurrPathInfo(currPath);
-
-}
-
 
 function App() {
   const [isDarkMode, setIsDarkMode] = React.useState(true);
@@ -74,6 +70,7 @@ function App() {
   const [arrowPointer, setArrowPointer] = React.useState(0);
   const [displayTime, setDisplayTime] = React.useState(getCurrentTime());
   const [matches, setMatches] = React.useState([]);
+  const [resumeLink, setResumeLink] = React.useState(null);
 
   const inputRef = React.useRef(null);
 
@@ -91,6 +88,16 @@ function App() {
       inputRef.current.scrollIntoView({ behavior: "smooth" });
     }
   });
+
+  // prefetch resume
+  React.useEffect(() => {
+    fetch('James_Rogers_Resume.pdf').then(response => {
+      response.blob().then(blob => {
+        const fileURL = window.URL.createObjectURL(blob);
+        setResumeLink(fileURL);
+      })
+  })
+  }, []);
 
   const handleInputChange = (e) => {
     setInputVal(e.currentTarget.value);
@@ -216,10 +223,11 @@ function App() {
             {Array.isArray(h.print) ? h.print.map(p => (
               <a
                 key={p.title}
-                href={p.href}
+                href={p.title === resumeTitle ? resumeLink : p.href}
                 target="_blank"
                 rel="noreferrer"
                 style={{ paddingRight: '30px' }}
+                download={p.title === resumeTitle ? resumeTitle : false}
               >{p.title}</a>
             )) : (
               <a href={h.href} target="_blank" rel="noreferrer">{h.print}</a>
