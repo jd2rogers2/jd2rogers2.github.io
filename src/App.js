@@ -2,6 +2,7 @@ import React from 'react';
 
 import { introPrint } from './staticContent/introPrint';
 import Prefix from './components/Prefix';
+import * as blogs from './staticContent/blogStartUpJournalThings';
 
 import './App.css';
 
@@ -32,19 +33,15 @@ function Row({ children, styles }) {
   );
 }
 
-// function Cursor() {
-//   const [isBlinked, setIsBlinked] = React.useState(true);
-
-//   React.useEffect(() => {
-//     setTimeout(() => {
-//       setIsBlinked(!isBlinked);
-//     }, 500);
-//   }, [isBlinked]);
-
-//   return (
-//     <div style={{ height: '20px', width: '12px', backgroundColor: isBlinked ? 'white' : 'black' }} />
-//   );
-// }
+const dirStructure = {
+  '~': {
+    links: ['inkedin', 'github', 'gitlab'],
+    Downloads: ['resume'],
+    Documents: {
+      blog_start_up_journal_things: Object.values(blogs),
+    },
+  },
+}
 
 function App() {
   const [isDarkMode, setIsDarkMode] = React.useState(true);
@@ -60,10 +57,9 @@ function App() {
 
   React.useEffect(() => {
     function writeOutIntro() {
-      return;
-      // setTimeout(() => {
-      //   setCurrIntroPrint(introPrint.slice(0, currIntroPrint.length + 1));
-      // }, 20);
+      setTimeout(() => {
+        setCurrIntroPrint(introPrint.slice(0, currIntroPrint.length + 1));
+      }, 20);
     }
     writeOutIntro();
   }, [currIntroPrint]);
@@ -105,6 +101,17 @@ function App() {
           break;
         case 'dark':
           setIsDarkMode(true);
+          break;
+        case 'ls':
+          let tempLoc = dirStructure;
+          const dirs = currPath.split('/');
+          dirs.forEach(dir => {
+            tempLoc = tempLoc[dir];
+          });
+          print = tempLoc;
+          break;
+        case 'pwd':
+          print = currPath
           break;
         case '':
           isVisible = true;

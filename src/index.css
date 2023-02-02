@@ -1,19 +1,17 @@
-/* html {
-  height: 100%;
-} */
 
 body {
   margin: 0;
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
   monospace;
+  font-size: 18px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   height: 100vh;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+input, select, textarea, button, code {
+  font-family: inherit;
+  font-size: inherit;
 }
 
 #root {
