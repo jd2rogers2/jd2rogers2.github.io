@@ -1,7 +1,7 @@
 .App {
   text-align: left;
-  height: 100%;
-  width: 100%;
+  height: calc(100vh - 40px);
+  width: calc(100vw - 40px);
   padding: 20px;
   display: flex;
   flex-direction: column;

@@ -39,8 +39,8 @@ const dirStructure = {
   '~': {
     links: [
       { title: 'linkedin', href: 'https://www.linkedin.com/in/jd2rogers2/' },
-      { title: 'gitlab', href: 'https://gitlab.com/jd2rogers2' },
       { title: 'github', href: 'https://github.com/jd2rogers2' },
+      { title: 'gitlab', href: 'https://gitlab.com/jd2rogers2' },
     ],
     Downloads: [{ title: resumeTitle }],
     Documents: {
@@ -123,22 +123,47 @@ function App() {
         setArrowPointer(newPointer);
         setInputVal(arrowHistory[newPointer]?.cmd ?? '');
       }
-    } else if (e.key === 'Tab' && inputVal.startsWith('cd ')) {
+    } else if (e.key === 'Tab') {
       e.preventDefault();
+
+      if (!(inputVal.startsWith('cd') || inputVal.startsWith('cat'))) {
+        return;
+      }
+
+      let cmdArg = '';
+      if (inputVal.includes(' ')) {
+        cmdArg = inputVal.slice(inputVal.indexOf(' ') + 1);
+      }
+
+      const cmd = inputVal.startsWith('cd') ? 'cd' : 'cat';
       const [currLoc] = getCurrPathInfo(currPath);
       const children = Array.isArray(currLoc) ? currLoc : Object.keys(currLoc);
-      const newMatches = children.filter(c => c.startsWith(inputVal.slice(3)));
+      const newMatches = children.filter(c => (
+        (c.title || c).startsWith(cmdArg)
+        && (!(c.title || c).includes('.') || cmd === 'cat')
+      ));
       if (newMatches.length > 1) {
         setMatches(newMatches);
       } else if (newMatches.length === 1) {
-        setInputVal(`cd ${newMatches[0]}`);
+        setInputVal(`${cmd} ${newMatches[0]?.title || newMatches[0]}`);
         setMatches([]);
       }
+    } else if (e.key === 'c' && e.ctrlKey) {
+      e.preventDefault();
+      const time = getCurrentTime();
+      const newHistory = [
+        ...history,
+        { cmd: inputVal, time, print: '', clickable: false, path: currPath, isVisible: true }
+      ];
+      setHistory(newHistory);
+      setInputVal('');
+      setDisplayTime(time);
     } else if (e.key === 'Enter') {
       let print = '';
       let clickable = false;
       let newHistory = [...history];
       let isVisible = true;
+      let isBlog = false;
 
       switch (inputVal) {
         case 'clear':
@@ -164,17 +189,31 @@ function App() {
         case 'welcome':
           print = introPrint;
           break;
+        case 'help':
+          print = introPrint;
+          break;
         case '':
           break;
         default:
-          if (inputVal.startsWith('cd ')) {
+          if (inputVal.startsWith('cat ')) {
+            const catFile = inputVal.slice(4);
+            if (!catFile.includes('.')) {
+              print = `cat: ${catFile}: Is a directory`;
+            } else {
+              isBlog = true;
+              print = Object.values(blogs).find(b => b.title === catFile);
+            }
+            break;
+          } else if (inputVal.startsWith('cd ')) {
             const [currLoc] = getCurrPathInfo(currPath);
             const children = Array.isArray(currLoc) ? currLoc : Object.keys(currLoc);
             const nextLoc = inputVal.slice(3);
-            if (children.includes(nextLoc)) {
-              setCurrPath(`${currPath}/${nextLoc}`);
-            } else if (nextLoc === '..') {
+            if (nextLoc === '..') {
               setCurrPath(currPath.slice(0, currPath.lastIndexOf('/')));
+            } else if (nextLoc.includes('.')) {
+              print = `cd: not a directory: ${nextLoc}`;
+            } else if (children.includes(nextLoc)) {
+              setCurrPath(`${currPath}/${nextLoc}`);
             } else if (nextLoc === '~') {
               setCurrPath(nextLoc);
             } else {
@@ -192,7 +231,7 @@ function App() {
       const time = getCurrentTime();
       newHistory = [
         ...newHistory,
-        { cmd: inputVal, time, print, clickable, path: currPath, isVisible }
+        { cmd: inputVal, time, print, clickable, path: currPath, isVisible, isBlog }
       ];
       setHistory(newHistory);
       const newArrowHistory = newHistory.filter(h => h.cmd.length);
@@ -244,7 +283,17 @@ function App() {
               {Array.isArray(h.print) ? h.print.map(p => (
                 <div key={p.title} style={{ paddingRight: '30px' }}>{p?.title ?? p}</div>
               )) : (
-                <p key={h.print}>{h.print}</p>
+                <>
+                  {h.isBlog ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', alignItems: 'center' }}>
+                      <Row>{h.print.title}</Row>
+                      <Row>{h.print.date}</Row>
+                      <Row>{h.print.content}</Row>
+                    </div>
+                  ) : (
+                    <p>{h.print}</p>
+                  )}
+                </>
               )}
             </Row>
           ) : null}

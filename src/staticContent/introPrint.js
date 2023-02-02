@@ -7,7 +7,7 @@ export const introPrint = `
     If you like what you see and want to get in touch:
     cell: 617-838-1787    email: jd2rogers2@gmail.com
 
-    If you want to see this message again use the "welcome" command.
+    If you want to see this message again use the "welcome" or "help" commands.
 
     There's a blog, some links to me on other platforms, and a resume in here somewhere.
     Use the commands below to dive in. Enjoy!
