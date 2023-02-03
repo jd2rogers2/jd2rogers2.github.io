@@ -15,7 +15,7 @@ const lightModeStylez = {
   backgroundColor: 'rgb(255, 255, 255)',
   color: 'rgb(51, 187, 199)',
 };
-const introPrintStylez = { whiteSpace: 'pre-line' };
+const textPrintStylez = { whiteSpace: 'pre-line' };
 
 const getCurrentTime = () => {
   const now = Date.now();
@@ -250,7 +250,7 @@ function App() {
 
   return (
     <div className="App" style={isDarkMode ? darkModeStylez : lightModeStylez} onClick={handleClickAnywhere}>
-      <Row styles={introPrintStylez}>
+      <Row styles={textPrintStylez}>
         {currIntroPrint}
       </Row>
       {visibleHistory.map(h => h.clickable ? (
@@ -279,16 +279,23 @@ function App() {
             <Prefix path={h.path} time={h.time} cmd={h.cmd} />
           </Row>
           {h.print ? (
-            <Row styles={h.cmd === 'welcome' ? introPrintStylez : {}}>
+            <Row styles={h.cmd === 'welcome' ? textPrintStylez : {}}>
               {Array.isArray(h.print) ? h.print.map(p => (
                 <div key={p.title} style={{ paddingRight: '30px' }}>{p?.title ?? p}</div>
               )) : (
                 <>
                   {h.isBlog ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', alignItems: 'center' }}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        width: '100%',
+                        alignItems: 'center',
+                        padding: '30px 0',
+                      }}
+                    >
                       <Row>{h.print.title}</Row>
-                      <Row>{h.print.date}</Row>
-                      <Row>{h.print.content}</Row>
+                      <Row styles={textPrintStylez}>{h.print.content}</Row>
                     </div>
                   ) : (
                     <p>{h.print}</p>
