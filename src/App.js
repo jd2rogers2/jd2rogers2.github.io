@@ -141,7 +141,7 @@ function App() {
       const newMatches = children.filter(c => (
         (c.title || c).startsWith(cmdArg)
         && (!(c.title || c).includes('.') || cmd === 'cat')
-      ));
+      )).map(c => c?.title || c);
       if (newMatches.length > 1) {
         setMatches(newMatches);
       } else if (newMatches.length === 1) {
@@ -281,7 +281,7 @@ function App() {
           {h.print ? (
             <Row styles={h.cmd === 'welcome' ? textPrintStylez : {}}>
               {Array.isArray(h.print) ? h.print.map(p => (
-                <div key={p.title} style={{ paddingRight: '30px' }}>{p?.title ?? p}</div>
+                <div key={p.title} style={{ paddingRight: '100px' }}>{p?.title ?? p}</div>
               )) : (
                 <>
                   {h.isBlog ? (
@@ -324,7 +324,7 @@ function App() {
       {matches.length ? (
         <Row>
           {matches.map(m => (
-            <div key={m} style={{ paddingRight: '30px' }}>{m}</div>
+            <div key={m} style={{ paddingRight: '50px' }}>{m}</div>
           ))}
         </Row>
       ) : null}
