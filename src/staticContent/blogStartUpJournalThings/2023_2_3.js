@@ -1,6 +1,6 @@
 
 const blog = {
-    title: '2023_2_3.md',
+    title: '2023_02_3.md',
     content: `
         Well I just wrapped up writing my new personal page (what you're on currently, here's the source code https://github.com/jd2rogers2/jd2rogers2.github.io) and I'm really happy with it. It was the first step in my plan for total world domination.
 
