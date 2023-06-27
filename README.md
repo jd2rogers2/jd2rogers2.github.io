@@ -1,7 +1,7 @@
 ### about
 
 my personal page
-find me [here on linkedin](linkedin.com/in/jd2rogers2)
+find me [here on linkedin](https://linkedin.com/in/jd2rogers2)
 
 built with react and hosted on github pages
 
