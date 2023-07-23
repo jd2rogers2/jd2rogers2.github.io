@@ -10,3 +10,4 @@ built with react and hosted on github pages
 - make portfolio section
     - pop up modal like it's opening a browser window over the terminal
 - make the directories react-router-dom routes so that i can externally link to a specific blog
+- dates and titles for blogs?
