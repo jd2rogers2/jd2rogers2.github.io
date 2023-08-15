@@ -11,3 +11,5 @@ built with react and hosted on github pages
     - pop up modal like it's opening a browser window over the terminal
 - make the directories react-router-dom routes so that i can externally link to a specific blog
 - dates and titles for blogs?
+- gui section/sidebar/modal for recruiters
+  - or "suggested commands"?
