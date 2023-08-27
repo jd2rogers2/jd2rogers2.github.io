@@ -1,6 +1,7 @@
 
 const blog = {
-    title: '2023_07_23.md',
+    date: '2023_07_23',
+    title: 'pre_aws_certified_dev.md',
     content: `
         Here comes another dose of James' stream of consciousness writing that will likely never be read by a single soul. This time I'm here to tell you about my next step of taking the AWS Certified Developer test.
         

@@ -1,6 +1,7 @@
 
 const blog = {
-    title: '2023_04_26.md',
+    date: '2023_04_26',
+    title: 'be_anything_and_tracker.md',
     content: `
         Thanks for tuning back in avid readers (of which there are none). I want to do three things this week:
         

@@ -1,6 +1,7 @@
 
 const blog = {
-    title: '2023_06_26.md',
+    date: '2023_06_26',
+    title: 'marriage_and_aws_cert_1.md',
     content: `
         Today I'm here with a couple big updates. First of which is that I got married. We flew to Ireland and eloped with just a couple of friends in attendance. What a great trip and I'm so lucky to have found my person.
 

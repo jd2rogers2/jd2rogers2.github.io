@@ -1,6 +1,7 @@
 
 const blog = {
-    title: '2023_04_26.md',
+    date: '2023_04_26',
+    title: 'aws_certified_dev_success.md',
     content: `
         ideas to write on:
             what i've worked on in the passed week or 2

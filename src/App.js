@@ -28,7 +28,7 @@ const getCurrentTime = () => {
 
 function Row({ children, styles }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'row', ...styles }}>
+    <div style={{ display: 'flex', flexDirection: 'row', width: '100%', ...styles }}>
       {children}
     </div>
   );
@@ -279,10 +279,22 @@ function App() {
             <Prefix path={h.path} time={h.time} cmd={h.cmd} />
           </Row>
           {h.print ? (
-            <Row styles={h.cmd === 'welcome' ? textPrintStylez : {}}>
-              {Array.isArray(h.print) ? h.print.map(p => (
-                <div key={p.title} style={{ paddingRight: '100px' }}>{p?.title ?? p}</div>
-              )) : (
+            <Row style={h.cmd === 'welcome' ? textPrintStylez : {}}>
+              {Array.isArray(h.print) ? (
+                <div style={{ display: 'flex', flexDirection: 'row' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    { console.log(h.print) }
+                    {h.print.slice(0, Math.floor(h.print.length / 2 + 1)).map(p => (
+                      <div key={p.title} style={{ paddingRight: '100px' }}>{p?.title ?? p}</div>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    {h.print.slice(Math.floor(h.print.length / 2 + 1)).map(p => (
+                      <div key={p.title} style={{ paddingRight: '100px' }}>{p?.title ?? p}</div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
                 <>
                   {h.isBlog ? (
                     <div
@@ -295,6 +307,7 @@ function App() {
                       }}
                     >
                       <Row>{h.print.title}</Row>
+                      <Row>{h.print.date}</Row>
                       <Row styles={textPrintStylez}>{h.print.content}</Row>
                     </div>
                   ) : (
