@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { introPrint } from './staticContent/introPrint';
 import Prefix from './components/Prefix';
@@ -11,10 +12,12 @@ const darkModeStylez = {
   backgroundColor: 'rgb(37, 37, 37)',
   color: 'rgb(105, 207, 73)',
 };
+
 const lightModeStylez = {
   backgroundColor: 'rgb(255, 255, 255)',
   color: 'rgb(51, 187, 199)',
 };
+
 const textPrintStylez = { whiteSpace: 'pre-line' };
 
 const getCurrentTime = () => {
@@ -35,6 +38,7 @@ function Row({ children, styles }) {
 }
 
 const resumeTitle = 'James_Rogers_Resume.pdf';
+
 const dirStructure = {
   '~': {
     links: [
@@ -63,7 +67,6 @@ function App() {
   const [isDarkMode, setIsDarkMode] = React.useState(true);
   // { cmd: str, time: str, print: str, clickable: bool, path: str, isVisible: bool }
   const [history, setHistory] = React.useState([]);
-  const [currPath, setCurrPath] = React.useState('~');
   const [inputVal, setInputVal] = React.useState('');
   const [currIntroPrint, setCurrIntroPrint] = React.useState('');
   // x commands back
@@ -71,8 +74,11 @@ function App() {
   const [displayTime, setDisplayTime] = React.useState(getCurrentTime());
   const [matches, setMatches] = React.useState([]);
   const [resumeLink, setResumeLink] = React.useState(null);
+  const [skipSlowPrint, setSkipSlowPrint] = React.useState(false);
 
   const inputRef = React.useRef(null);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     function writeOutIntro() {
@@ -80,8 +86,12 @@ function App() {
         setCurrIntroPrint(introPrint.slice(0, currIntroPrint.length + 1));
       }, 20);
     }
-    writeOutIntro();
-  }, [currIntroPrint]);
+    if (skipSlowPrint) {
+      setCurrIntroPrint(introPrint);
+    } else {
+      writeOutIntro();
+    }
+  }, [currIntroPrint, skipSlowPrint]);
 
   React.useEffect(() => {
     if (inputRef?.current) {
@@ -95,9 +105,32 @@ function App() {
       response.blob().then(blob => {
         const fileURL = window.URL.createObjectURL(blob);
         setResumeLink(fileURL);
-      })
-  })
+      });
+    });
   }, []);
+
+  React.useEffect(() => {
+    if (location.pathname === '/') {
+      navigate('/~');
+    }
+    // if it's a file (blog) and we've just arrived 
+    if (location.pathname.includes('.') && history.length === 0) {
+      const time = getCurrentTime();
+      const newPath = location.pathname.slice(0, location.pathname.lastIndexOf('/'))
+      const blogName = location.pathname.slice(location.pathname.lastIndexOf('/') + 1)
+      const foundBlog = Object.values(blogs).find(b => b.title === blogName);
+      setHistory([
+        { cmd: `cat ${foundBlog.title}`, time, print: foundBlog, clickable: false, path: newPath, isVisible: true, isBlog: true }
+      ]);
+      setSkipSlowPrint(true);
+    }
+  }, [location.pathname, navigate, history]);
+
+  const removeSlash = location.pathname.slice(1);
+  // remove last file if it's in the path
+  const currPath = removeSlash.includes('.')
+    ? removeSlash.slice(0, removeSlash.lastIndexOf('/'))
+    : removeSlash;
 
   const handleInputChange = (e) => {
     setInputVal(e.currentTarget.value);
@@ -200,8 +233,12 @@ function App() {
             if (!catFile.includes('.')) {
               print = `cat: ${catFile}: Is a directory`;
             } else {
-              isBlog = true;
-              print = Object.values(blogs).find(b => b.title === catFile);
+              const foundBlog = Object.values(blogs).find(b => b.title === catFile);
+              if (foundBlog) {
+                isBlog = true;
+                print = foundBlog;
+                navigate(currPath + `/${foundBlog.title}`);
+              }
             }
             break;
           } else if (inputVal.startsWith('cd ')) {
@@ -209,13 +246,17 @@ function App() {
             const children = Array.isArray(currLoc) ? currLoc : Object.keys(currLoc);
             const nextLoc = inputVal.slice(3);
             if (nextLoc === '..') {
-              setCurrPath(currPath.slice(0, currPath.lastIndexOf('/')));
+              console.log(currPath)
+              console.log(currPath.lastIndexOf('/'))
+              console.log(currPath.lastIndexOf('/'))
+              console.log(currPath.slice(0, currPath.lastIndexOf('/')))
+              navigate(`/${currPath.slice(0, currPath.lastIndexOf('/'))}`);
             } else if (nextLoc.includes('.')) {
               print = `cd: not a directory: ${nextLoc}`;
             } else if (children.includes(nextLoc)) {
-              setCurrPath(`${currPath}/${nextLoc}`);
+              navigate(`/${currPath}/${nextLoc}`);
             } else if (nextLoc === '~') {
-              setCurrPath(nextLoc);
+              navigate(`/${nextLoc}`);
             } else {
               print = `cd: no such file or directory: ${nextLoc}`;
             }
@@ -283,7 +324,6 @@ function App() {
               {Array.isArray(h.print) ? (
                 <div style={{ display: 'flex', flexDirection: 'row' }}>
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    { console.log(h.print) }
                     {h.print.slice(0, Math.floor(h.print.length / 2 + 1)).map(p => (
                       <div key={p.title} style={{ paddingRight: '100px' }}>{p?.title ?? p}</div>
                     ))}
@@ -306,8 +346,8 @@ function App() {
                         padding: '30px 0',
                       }}
                     >
-                      <Row>{h.print.title}</Row>
-                      <Row>{h.print.date}</Row>
+                      <Row styles={{ justifyContent: 'center' }}>{h.print.title}</Row>
+                      <Row styles={{ justifyContent: 'center' }}>{h.print.date}</Row>
                       <Row styles={textPrintStylez}>{h.print.content}</Row>
                     </div>
                   ) : (
