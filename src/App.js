@@ -288,7 +288,7 @@ function App() {
         {currIntroPrint}
       </Row>
       {visibleHistory.map(h => h.clickable ? (
-        <React.Fragment key={h.time}>
+        <React.Fragment key={h.time + h.cmd}>
           <Row>
             <Prefix path={h.path} time={h.time} cmd={h.cmd} />
           </Row>
@@ -308,7 +308,7 @@ function App() {
           </Row>
         </React.Fragment>
       ) : (
-        <React.Fragment key={h.time}>
+        <React.Fragment key={h.time + h.cmd}>
           <Row>
             <Prefix path={h.path} time={h.time} cmd={h.cmd} />
           </Row>
