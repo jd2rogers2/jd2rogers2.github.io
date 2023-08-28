@@ -13,4 +13,5 @@ export const introPrint = `
     Use the commands below to dive in. Enjoy!
 
     pwd, ls, cd, cat, echo, clear, dark, light, welcome
+
 `;

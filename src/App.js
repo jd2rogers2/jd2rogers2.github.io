@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 
 import { introPrint } from './staticContent/introPrint';
 import Prefix from './components/Prefix';
@@ -53,9 +53,9 @@ const dirStructure = {
   },
 }
 
-const getCurrPathInfo = (currPath) => {
+const getCurrPathInfo = (path) => {
   let tempLoc = dirStructure;
-  const dirs = currPath.split('/');
+  const dirs = path.split('/');
   dirs.forEach(dir => {
     tempLoc = tempLoc[dir];
   });
@@ -64,9 +64,27 @@ const getCurrPathInfo = (currPath) => {
 
 
 function App() {
-  const [isDarkMode, setIsDarkMode] = React.useState(true);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const path = searchParams.get('path');
+  const currPath = path?.includes('.md')
+    ? path?.slice(0, path?.lastIndexOf('/')) : path;;
+
+  let historyStart = [];
+  let skipSlowPrint = false;
+  // if it's a blog file (.md) and we've just arrived
+  if (path?.includes('.md')) {
+    const time = getCurrentTime();
+    const newPath = path?.slice(0, path?.lastIndexOf('/'));
+    const blogName = path?.slice(path?.lastIndexOf('/') + 1);
+    const foundBlog = Object.values(blogs).find(b => b.title === blogName);
+    historyStart = [
+      { cmd: `cat ${foundBlog.title}`, time, print: foundBlog, clickable: false, path: newPath, isVisible: true, isBlog: true }
+    ];
+    skipSlowPrint = true;
+  }
+
   // { cmd: str, time: str, print: str, clickable: bool, path: str, isVisible: bool }
-  const [history, setHistory] = React.useState([]);
+  const [history, setHistory] = React.useState(historyStart);
   const [inputVal, setInputVal] = React.useState('');
   const [currIntroPrint, setCurrIntroPrint] = React.useState('');
   // x commands back
@@ -74,11 +92,9 @@ function App() {
   const [displayTime, setDisplayTime] = React.useState(getCurrentTime());
   const [matches, setMatches] = React.useState([]);
   const [resumeLink, setResumeLink] = React.useState(null);
-  const [skipSlowPrint, setSkipSlowPrint] = React.useState(false);
+  const [isDarkMode, setIsDarkMode] = React.useState(true);
 
   const inputRef = React.useRef(null);
-  const location = useLocation();
-  const navigate = useNavigate();
 
   React.useEffect(() => {
     function writeOutIntro() {
@@ -95,7 +111,7 @@ function App() {
 
   React.useEffect(() => {
     if (inputRef?.current) {
-      inputRef.current.scrollIntoView({ behavior: "smooth" });
+      inputRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   });
 
@@ -110,27 +126,10 @@ function App() {
   }, []);
 
   React.useEffect(() => {
-    if (location.pathname === '/') {
-      navigate('/~');
+    if (!path) {
+      setSearchParams({ path: '~' });
     }
-    // if it's a file (blog) and we've just arrived 
-    if (location.pathname.includes('.') && history.length === 0) {
-      const time = getCurrentTime();
-      const newPath = location.pathname.slice(0, location.pathname.lastIndexOf('/'))
-      const blogName = location.pathname.slice(location.pathname.lastIndexOf('/') + 1)
-      const foundBlog = Object.values(blogs).find(b => b.title === blogName);
-      setHistory([
-        { cmd: `cat ${foundBlog.title}`, time, print: foundBlog, clickable: false, path: newPath, isVisible: true, isBlog: true }
-      ]);
-      setSkipSlowPrint(true);
-    }
-  }, [location.pathname, navigate, history]);
-
-  const removeSlash = location.pathname.slice(1);
-  // remove last file if it's in the path
-  const currPath = removeSlash.includes('.')
-    ? removeSlash.slice(0, removeSlash.lastIndexOf('/'))
-    : removeSlash;
+  }, [path, setSearchParams]);
 
   const handleInputChange = (e) => {
     setInputVal(e.currentTarget.value);
@@ -190,7 +189,6 @@ function App() {
       ];
       setHistory(newHistory);
       setInputVal('');
-      setDisplayTime(time);
     } else if (e.key === 'Enter') {
       let print = '';
       let clickable = false;
@@ -237,7 +235,7 @@ function App() {
               if (foundBlog) {
                 isBlog = true;
                 print = foundBlog;
-                navigate(currPath + `/${foundBlog.title}`);
+                setSearchParams({ path: currPath + `/${foundBlog.title}` });
               }
             }
             break;
@@ -246,17 +244,13 @@ function App() {
             const children = Array.isArray(currLoc) ? currLoc : Object.keys(currLoc);
             const nextLoc = inputVal.slice(3);
             if (nextLoc === '..') {
-              console.log(currPath)
-              console.log(currPath.lastIndexOf('/'))
-              console.log(currPath.lastIndexOf('/'))
-              console.log(currPath.slice(0, currPath.lastIndexOf('/')))
-              navigate(`/${currPath.slice(0, currPath.lastIndexOf('/'))}`);
+              setSearchParams({ path: currPath?.slice(0, currPath?.lastIndexOf('/')) });
             } else if (nextLoc.includes('.')) {
               print = `cd: not a directory: ${nextLoc}`;
             } else if (children.includes(nextLoc)) {
-              navigate(`/${currPath}/${nextLoc}`);
+              setSearchParams({ path: `${currPath}/${nextLoc}` });
             } else if (nextLoc === '~') {
-              navigate(`/${nextLoc}`);
+              setSearchParams({ path: `${nextLoc}` });
             } else {
               print = `cd: no such file or directory: ${nextLoc}`;
             }
@@ -269,16 +263,15 @@ function App() {
           break;
       }
 
-      const time = getCurrentTime();
       newHistory = [
         ...newHistory,
-        { cmd: inputVal, time, print, clickable, path: currPath, isVisible, isBlog }
+        { cmd: inputVal, time: displayTime, print, clickable, path: currPath, isVisible, isBlog }
       ];
       setHistory(newHistory);
       const newArrowHistory = newHistory.filter(h => h.cmd.length);
       setArrowPointer((newArrowHistory.length || 1));
       setInputVal('');
-      setDisplayTime(time);
+      setDisplayTime(getCurrentTime());
       setMatches([]);
     }
   };
