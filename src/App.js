@@ -317,12 +317,12 @@ function App() {
               {Array.isArray(h.print) ? (
                 <div style={{ display: 'flex', flexDirection: 'row' }}>
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    {h.print.slice(0, Math.floor(h.print.length / 2 + 1)).map(p => (
+                    {h.print.slice(0, Math.ceil(h.print.length / 2)).map(p => (
                       <div key={p.title} style={{ paddingRight: '100px' }}>{p?.title ?? p}</div>
                     ))}
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    {h.print.slice(Math.floor(h.print.length / 2 + 1)).map(p => (
+                    {h.print.slice(Math.ceil(h.print.length / 2)).map(p => (
                       <div key={p.title} style={{ paddingRight: '100px' }}>{p?.title ?? p}</div>
                     ))}
                   </div>
