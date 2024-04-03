@@ -1,7 +1,6 @@
 
 const blog = {
-    date: '2023_04_8',
-    title: 'aws_cloud_practitioner_grind.md',
+    title: '2023-04-08__aws_cloud_practitioner_grind.md',
     content: `
         This last month's time has mostly been spent grinding on the AWS course. I see some of my recent bootcamp students posting about getting AWS certified and I think that I'm probably ready for the exam but have decided to continue the course as I think it's a good one; it's important to understand it thoroughly and get the reps in to solidify the memorization. 
         

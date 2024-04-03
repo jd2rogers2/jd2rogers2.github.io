@@ -1,7 +1,6 @@
 
 const blog = {
-    date: '2023_09_25',
-    title: 'aws_hands_on.md',
+    title: '2023-09-25__aws_hands_on.md',
     content: `
         It has been a buuuusy month, we're visiting our family and friends back in the Boston area and have been going non-stop. Luckily, I am working west coast hours still so I've been able to make time in the mornings to work on this startup stuff.
 

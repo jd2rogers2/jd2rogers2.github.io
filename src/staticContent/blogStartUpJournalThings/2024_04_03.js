@@ -1,7 +1,6 @@
 
 const blog = {
-  date: '2024_04_03',
-  title: 'job_search_prep.md',
+  title: '2024-04-03__job_search_prep.md',
   content: `
     Well here's another blog you have to suffer through that's not related to startup starting. But in order to chase our dreams we have to have a strong foundation, and right now my job is not stable.
 
@@ -9,7 +8,7 @@ const blog = {
 
     Next up in the plan is system design. I'll need a course because I understand most of the components and how to piece together a system but for some reason I struggle when it comes to deciding based on tradeoffs and back of envelope calculations. I'll update you on which course I use.
 
-    I promise to not spend more than a month on this. This means that I'll be back to hackr_harvest by May.
+    I promise to not spend more than a month on this. This means that I'll be back to working on startup things like hackr_harvest by May.
   `,
 };
 

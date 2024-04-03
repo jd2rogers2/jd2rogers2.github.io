@@ -1,7 +1,6 @@
 
 const blog = {
-    date: '2023_04_26',
-    title: 'aws_certified_dev_success.md',
+    title: '2023-04/26 - aws_certified_dev_success.md',
     content: `
         reflect: was hackr_harvest really important on my AWS learning journey?
 

@@ -3,10 +3,12 @@ import { useSearchParams } from 'react-router-dom';
 
 import { introPrint } from './staticContent/introPrint';
 import Prefix from './components/Prefix';
-import * as blogs from './staticContent/blogStartUpJournalThings';
+import * as blogModule from './staticContent/blogStartUpJournalThings';
 
 import './App.css';
 
+
+const blogs = Object.values(blogModule).sort((a, b) => a.title < b.title ? 1 : -1);
 
 const darkModeStylez = {
   backgroundColor: 'rgb(37, 37, 37)',
@@ -48,7 +50,7 @@ const dirStructure = {
     ],
     Downloads: [{ title: resumeTitle }],
     Documents: {
-      blog_start_up_journal_things: Object.values(blogs),
+      blog_start_up_journal_things: blogs,
     },
   },
 }
@@ -76,7 +78,7 @@ function App() {
     const time = getCurrentTime();
     const newPath = path?.slice(0, path?.lastIndexOf('/'));
     const blogName = path?.slice(path?.lastIndexOf('/') + 1);
-    const foundBlog = Object.values(blogs).find(b => b.title === blogName);
+    const foundBlog = blogs.find(b => b.title === blogName);
     historyStart = [
       { cmd: `cat ${foundBlog.title}`, time, print: foundBlog, clickable: false, path: newPath, isVisible: true, isBlog: true }
     ];
@@ -231,7 +233,7 @@ function App() {
             if (!catFile.includes('.')) {
               print = `cat: ${catFile}: Is a directory`;
             } else {
-              const foundBlog = Object.values(blogs).find(b => b.title === catFile);
+              const foundBlog = blogs.find(b => b.title === catFile);
               if (foundBlog) {
                 isBlog = true;
                 print = foundBlog;
@@ -340,7 +342,6 @@ function App() {
                       }}
                     >
                       <Row styles={{ justifyContent: 'center' }}>{h.print.title}</Row>
-                      <Row styles={{ justifyContent: 'center' }}>{h.print.date}</Row>
                       <Row styles={textPrintStylez}>{h.print.content}</Row>
                     </div>
                   ) : (

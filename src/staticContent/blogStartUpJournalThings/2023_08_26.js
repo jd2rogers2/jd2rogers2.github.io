@@ -1,7 +1,6 @@
 
 const blog = {
-    date: '2023_08_26',
-    title: 'aws_certified_dev_success.md',
+    title: '2023-08-26__aws_certified_dev_success.md',
     content: `
         Well I passed my second AWS certification. Specifically the Certified Developer Associate test. It certainly wasn't easy, though this being my second, I did know what I was getting into this time. I got another 80, which I'm happy with considering I only studied for 1 month for this one. I followed the same strategy as last time that I've outlined a fair bit in earlier posts.
 

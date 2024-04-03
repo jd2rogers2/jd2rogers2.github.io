@@ -1,7 +1,6 @@
 
 const blog = {
-    date: '2023_02_28',
-    title: 'sacrificing_volunteering.md',
+    title: '2023-02-28__sacrificing_volunteering.md',
     content: `
         So it's been almost a month and, outside of the ol' 9-5, here's what I've done:
 

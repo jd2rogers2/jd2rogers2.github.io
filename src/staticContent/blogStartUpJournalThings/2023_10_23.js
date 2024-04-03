@@ -1,7 +1,6 @@
 
 const blog = {
-    date: '2023_10_23',
-    title: 'hands_on_with_sdk_and_pause.md',
+    title: '2023-10-23__hands_on_with_sdk_and_pause.md',
     content: `
         Lately I have been (finally) getting my hands dirty with using some of AWS's SDKs to build out my "startup's" platform. I started my event RSVPing site by creating a repo with a docker-compose environment with just 2 services; the API and a web_frontend. I have typically used 3 services (an additional DB) in the past but when I tried out sequelize and saw that it could connect to any DB with a connection string similar to what I was familiar with postgres, I hooked up directly up to a dev env RDS DB - an AWS RDBMS service. This was much easier than I expected with sequelize's migrations being very helpful. Now sequelize's provided ORM classes gave me access directly to my RDS tables! I quickly built out the frontend and backend for creating events just to get the reps in and make sure my full pipeline was operational.
 

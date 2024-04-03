@@ -1,7 +1,6 @@
 
 const blog = {
-  date: '2024_02_26',
-  title: 'ai_hackathon.md',
+  title: '2024-02-26__ai_hackathon.md',
   content: `
       Wow, has it really been 4 months since I wrote my last entry? I have been busy planning and executing my wedding fiesta in Panama and visiting family in Boston. Working the whole time (ish), writing curriculum for the bootcamp, but it was A LOT of time away from home.
 
