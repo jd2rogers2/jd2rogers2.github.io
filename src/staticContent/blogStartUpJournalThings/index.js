@@ -9,6 +9,7 @@ import blog8 from './2023_09_25';
 import blog9 from './2023_10_23';
 import blog10 from './2024_02_26';
 import blog11 from './2024_04_03';
+import blog12 from './2024_05_03';
 
 export {
     blog1,
@@ -22,4 +23,5 @@ export {
     blog9,
     blog10,
     blog11,
+    blog12,
 };
