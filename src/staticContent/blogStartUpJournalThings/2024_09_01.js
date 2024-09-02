@@ -1,6 +1,6 @@
 
 const blog = {
-    title: '2023-04-26 - aws_certified_dev_success.md',
+    title: '2024-09-01 - new_yob.md',
     content: `
         Two months since my last post, woops. Well lot's to catch up on then, so settle in for a lengthy read. I want to cover 4 things; 75 hard, a retro on my last job, because I found a new one!, and my next moves.
 
